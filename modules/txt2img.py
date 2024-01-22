@@ -1,3 +1,4 @@
+import inspect
 import json
 from contextlib import closing
 
@@ -11,7 +12,7 @@ from PIL import Image
 import gradio as gr
 
 
-def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, negative_prompt: str, prompt_styles, steps: int, sampler_name: str, n_iter: int, batch_size: int, cfg_scale: float, height: int, width: int, enable_hr: bool, denoising_strength: float, hr_scale: float, hr_upscaler: str, hr_second_pass_steps: int, hr_resize_x: int, hr_resize_y: int, hr_checkpoint_name: str, hr_sampler_name: str, hr_prompt: str, hr_negative_prompt, override_settings_texts, *args, force_enable_hr=False):
+def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, negative_prompt: str, prompt_styles, steps: int, sampler_name: str, n_iter: int, batch_size: int, cfg_scale: float, height: int, width: int, enable_hr: bool, denoising_strength: float, hr_scale: float, hr_upscaler: str, hr_second_pass_steps: int, hr_resize_x: int, hr_resize_y: int, hr_checkpoint_name: str, hr_sampler_name: str, hr_prompt: str, hr_negative_prompt, override_settings_texts, *args, force_enable_hr=False, firstpass_image=None):
     override_settings = create_override_settings_dict(override_settings_texts)
 
     if force_enable_hr:
@@ -43,6 +44,7 @@ def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, ne
         hr_prompt=hr_prompt,
         hr_negative_prompt=hr_negative_prompt,
         override_settings=override_settings,
+        firstpass_image=firstpass_image,
     )
 
     p.scripts = modules.scripts.scripts_txt2img
@@ -60,21 +62,33 @@ def txt2img_upscale(id_task: str, request: gr.Request, gallery, gallery_index, g
     assert len(gallery) > 0, 'No image to upscale'
     assert 0 <= gallery_index < len(gallery), f'Bad image index: {gallery_index}'
 
-    p = txt2img_create_processing(id_task, request, *args)
-    p.enable_hr = True
-    p.batch_size = 1
-    p.n_iter = 1
-    p.txt2img_upscale = True
+    # get firstpass image from gallery
+    firstpass_image = infotext_utils.image_from_url_text(gallery[gallery_index] if 0 <= gallery_index < len(gallery) else gallery[0])
+
+    bind_args = inspect.signature(txt2img_create_processing).bind(id_task, request, *args, force_enable_hr=True, firstpass_image=firstpass_image)
+    bind_args.apply_defaults()
+
+    # set batch_size and n_iter to 1 for hr button, overrides batch_size and n_iter from ui
+    bind_args.arguments['batch_size'] = 1
+    bind_args.arguments['n_iter'] = 1
 
     geninfo = json.loads(generation_info)
-
-    image_info = gallery[gallery_index] if 0 <= gallery_index < len(gallery) else gallery[0]
-    p.firstpass_image = infotext_utils.image_from_url_text(image_info)
-
     parameters = parse_generation_parameters(geninfo.get('infotexts')[gallery_index], [])
-    p.seed = parameters.get('Seed', -1)
-    p.subseed = parameters.get('Variation seed', -1)
 
+    # bind_args.arguments['args'] is same p.script_args
+    # update seed script args
+    seed_script_args = list(modules.scripts.scripts_txt2img.get_script_args(bind_args.arguments['args'], 'seed'))
+    for param, index in [('Seed', 0), ('Variation seed', 2), ('Variation seed strength', 3), ('Seed resize from-1', 4), ('Seed resize from-2', 5)]:
+        seed_script_args[index] = parameters.get(param, seed_script_args[index])
+    seed_script_args[1] = 'Variation seed' in parameters or 'Seed resize from-1' in parameters
+    bind_args.arguments['args'] = modules.scripts.scripts_txt2img.update_script_args(bind_args.arguments['args'], 'seed', seed_script_args)
+
+    p = txt2img_create_processing(*bind_args.args, **bind_args.kwargs)
+
+    # txt2img_upscale attribute that signifies this is called by txt2img_upscale
+    p.txt2img_upscale = True
+
+    # disable save_images_before_highres_fix as it is already saved from firstpass
     p.override_settings['save_images_before_highres_fix'] = False
 
     with closing(p):
