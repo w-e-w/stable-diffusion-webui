@@ -990,6 +990,22 @@ class ScriptRunner:
         else:
             return all_script_args[:script.args_from] + tuple(update_args) + all_script_args[script.args_to:]
 
+    def get_script_args(self, all_script_args, script_name):
+        """Get a script's args from script_args
+
+        Args:
+            all_script_args:
+            script_name:
+
+        Returns:
+            Script args
+        """
+        script = next((x for x in self.scripts if x.name == script_name), None)
+        if script is None:
+            assert False, f"script {script_name} not found"
+
+        return all_script_args[script.args_from:script.args_to]
+
 
 scripts_txt2img: ScriptRunner = None
 scripts_img2img: ScriptRunner = None
