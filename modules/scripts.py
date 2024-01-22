@@ -953,7 +953,7 @@ class ScriptRunner:
         """
         script = next((x for x in self.scripts if x.name == script_name), None)
         if script is None:
-            assert False, f"script {script_name} not found"
+            raise RuntimeError(f"script {script_name} not found")
 
         for i, control in enumerate(script.controls):
             if arg_elem_id == control.elem_id:
@@ -965,7 +965,7 @@ class ScriptRunner:
                 else:
                     return all_script_args[:index] + (value,) + all_script_args[index + 1:]
 
-        assert False, f"arg_elem_id {arg_elem_id} not found in script {script_name}"
+        raise RuntimeError(f"arg_elem_id {arg_elem_id} not found in script {script_name}")
 
     def update_script_args(self, all_script_args, script_name, update_args):
         """Update a script's args in script_args
@@ -980,7 +980,7 @@ class ScriptRunner:
         """
         script = next((x for x in self.scripts if x.name == script_name), None)
         if script is None:
-            assert False, f"script {script_name} not found"
+            raise RuntimeError(f"script {script_name} not found")
 
         assert len(update_args) == script.args_to - script.args_from, f"update_args length ({len(update_args)}) doesn't match {script_name} script's args length ({script.args_to - script.args_from})"
 
@@ -1002,7 +1002,7 @@ class ScriptRunner:
         """
         script = next((x for x in self.scripts if x.name == script_name), None)
         if script is None:
-            assert False, f"script {script_name} not found"
+            raise RuntimeError(f"script {script_name} not found")
 
         return all_script_args[script.args_from:script.args_to]
 
