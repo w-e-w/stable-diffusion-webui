@@ -939,22 +939,33 @@ class ScriptRunner:
             except Exception:
                 errors.report(f"Error running setup: {script.filename}", exc_info=True)
 
-    def set_named_arg(self, args, script_type, arg_elem_id, value):
-        script = next((x for x in self.scripts if type(x).__name__ == script_type), None)
+    def set_named_arg(self, all_script_args, script_name, arg_elem_id, value):
+        """Locate an arg of a specific script in script_args and set its value
+
+        Args:
+            all_script_args: all script args, p.script_args
+            script_name: the name target script name to
+            arg_elem_id: the elem_id of the target arg
+            value: the value to set
+
+        Returns:
+            Updated script args
+        """
+        script = next((x for x in self.scripts if x.name == script_name), None)
         if script is None:
-            return
+            assert False, f"script {script_name} not found"
 
         for i, control in enumerate(script.controls):
-            if arg_elem_id in control.elem_id:
+            if arg_elem_id == control.elem_id:
                 index = script.args_from + i
 
-                if isinstance(args, list):
-                    args[index] = value
-                    return args
-                elif isinstance(args, tuple):
-                    return args[:index] + (value,) + args[index+1:]
+                if isinstance(all_script_args, list):
+                    all_script_args[index] = value
+                    return all_script_args
                 else:
-                    return None
+                    return all_script_args[:index] + (value,) + all_script_args[index + 1:]
+
+        assert False, f"arg_elem_id {arg_elem_id} not found in script {script_name}"
 
 
 scripts_txt2img: ScriptRunner = None
