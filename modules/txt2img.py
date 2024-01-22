@@ -79,7 +79,7 @@ def txt2img_upscale(id_task: str, request: gr.Request, gallery, gallery_index, g
     # update seed script args
     seed_script_args = list(modules.scripts.scripts_txt2img.get_script_args(bind_args.arguments['args'], 'seed'))
     for param, index in [('Seed', 0), ('Variation seed', 2), ('Variation seed strength', 3), ('Seed resize from-1', 4), ('Seed resize from-2', 5)]:
-        seed_script_args[index] = parameters.get(param, seed_script_args[index])
+        seed_script_args[index] = float(parameters.get(param, seed_script_args[index]))
     seed_script_args[1] = 'Variation seed' in parameters or 'Seed resize from-1' in parameters
     bind_args.arguments['args'] = modules.scripts.scripts_txt2img.update_script_args(bind_args.arguments['args'], 'seed', seed_script_args)
 
