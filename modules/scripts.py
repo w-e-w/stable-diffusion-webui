@@ -967,6 +967,29 @@ class ScriptRunner:
 
         assert False, f"arg_elem_id {arg_elem_id} not found in script {script_name}"
 
+    def update_script_args(self, all_script_args, script_name, update_args):
+        """Update a script's args in script_args
+
+        Args:
+            all_script_args:
+            script_name:
+            update_args:
+
+        Returns:
+            Updated script args
+        """
+        script = next((x for x in self.scripts if x.name == script_name), None)
+        if script is None:
+            assert False, f"script {script_name} not found"
+
+        assert len(update_args) == script.args_to - script.args_from, f"update_args length ({len(update_args)}) doesn't match {script_name} script's args length ({script.args_to - script.args_from})"
+
+        if isinstance(all_script_args, list):
+            all_script_args[script.args_from:script.args_to] = update_args
+            return all_script_args
+        else:
+            return all_script_args[:script.args_from] + tuple(update_args) + all_script_args[script.args_to:]
+
 
 scripts_txt2img: ScriptRunner = None
 scripts_img2img: ScriptRunner = None
