@@ -106,17 +106,6 @@ def confirm_range(min_val, max_val, axis_label):
     return confirm_range_fun
 
 
-def apply_clip_skip(p, x, xs):
-    opts.data["CLIP_stop_at_last_layers"] = x
-
-
-def apply_upscale_latent_space(p, x, xs):
-    if x.lower().strip() != '0':
-        opts.data["use_scale_latent_for_hires_fix"] = True
-    else:
-        opts.data["use_scale_latent_for_hires_fix"] = False
-
-
 def apply_size(p, x: str, xs) -> None:
     try:
         width, _, height = x.partition('x')
