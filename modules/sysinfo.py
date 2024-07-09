@@ -42,8 +42,34 @@ def pretty_bytes(num, suffix="B"):
         num /= 1024
 
 
+def sensitive_info():
+    sensitive_dict = {}
+
+    # OS username
+    if (os_username := os.getenv('USERNAME' if os.name == 'nt' else 'USER', '')) and (os_username := os_username.strip()):
+        sensitive_dict['user'] = os_username
+
+    return sensitive_dict
+
+
+def recursive_replace_sensitive_info(info, sensitive_dict: dict):
+    if isinstance(info, dict):
+        for k, v in info.items():
+            info[k] = recursive_replace_sensitive_info(v, sensitive_dict)
+    elif isinstance(info, list):
+        for i, v in enumerate(info):
+            info[i] = recursive_replace_sensitive_info(v, sensitive_dict)
+    elif isinstance(info, str):
+        for k, v in sensitive_dict.items():
+            info = info.replace(v, f'<{k}>')
+    return info
+
+
 def get():
     res = get_dict()
+
+    sensitive_info_dict = sensitive_info()
+    res = recursive_replace_sensitive_info(res, sensitive_info_dict)
 
     text = json.dumps(res, ensure_ascii=False, indent=4)
 
