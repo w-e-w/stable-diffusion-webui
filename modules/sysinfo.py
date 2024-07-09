@@ -7,7 +7,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from modules import paths_internal, timer, shared_cmd_options, errors, launch_utils
+from modules import paths_internal, timer, shared_cmd_options, errors, launch_utils, cmd_args
 
 checksum_token = "DontStealMyGamePlz__WINNERS_DONT_USE_DRUGS__DONT_COPY_THAT_FLOPPY"
 environment_whitelist = {
@@ -132,20 +132,7 @@ def get_environment():
 
 
 def get_argv():
-    res = []
-
-    for v in sys.argv:
-        if shared_cmd_options.cmd_opts.gradio_auth and shared_cmd_options.cmd_opts.gradio_auth == v:
-            res.append("<hidden>")
-            continue
-
-        if shared_cmd_options.cmd_opts.api_auth and shared_cmd_options.cmd_opts.api_auth == v:
-            res.append("<hidden>")
-            continue
-
-        res.append(v)
-
-    return res
+    return ['<hidden>' if any((cmp_opt := getattr(shared_cmd_options.cmd_opts, k)) and cmp_opt == var for k in cmd_args.secrets) else var for var in sys.argv]
 
 
 re_newline = re.compile(r"\r*\n")

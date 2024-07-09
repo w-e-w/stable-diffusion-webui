@@ -3,6 +3,16 @@ import json
 import os
 from modules.paths_internal import normalized_filepath, models_path, script_path, data_path, extensions_dir, extensions_builtin_dir, sd_default_config, sd_model_file  # noqa: F401
 
+# List of args that should be hidden when exporting system info
+# Extensions should extend this list if they have additional secrets
+secrets = [
+    'api_auth',
+    'gradio_auth',
+    'gradio_auth_path',
+    'ngrok',
+    'ngrok_options',
+]
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-f", action='store_true', help=argparse.SUPPRESS)  # allows running as root; implemented outside of webui
