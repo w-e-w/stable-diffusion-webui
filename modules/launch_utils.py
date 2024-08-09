@@ -8,7 +8,6 @@ import sys
 import importlib.util
 import importlib.metadata
 import platform
-import json
 import shlex
 from functools import lru_cache
 
@@ -240,16 +239,7 @@ def run_extension_installer(extension_dir):
 
 
 def list_extensions(settings_file):
-    settings = {}
-
-    try:
-        with open(settings_file, "r", encoding="utf8") as file:
-            settings = json.load(file)
-    except FileNotFoundError:
-        pass
-    except Exception:
-        errors.report(f'\nCould not load settings\nThe config file "{settings_file}" is likely corrupted\nIt has been moved to the "tmp/config.json"\nReverting config to default\n\n''', exc_info=True)
-        os.replace(settings_file, os.path.join(script_path, "tmp", "config.json"))
+    settings = load_json_with_error_handling(settings_file, {}, 'settings', True)
 
     disabled_extensions = set(settings.get('disabled_extensions', []))
     disable_all_extensions = settings.get('disable_all_extensions', 'none')
@@ -528,3 +518,37 @@ def dump_sysinfo():
         file.write(text)
 
     return filename
+
+
+def load_json_with_error_handling(file_path, default=None, error_message=None, error_move_to_dir=None):
+    """
+    Load a JSON file, with error handling fallback to default values.
+    If the JSON file is corrupt, and error_move_to_dir is set, the file will be moved to that directory.
+        Set error_move_to_dir as True to move the file to the same directory as the original file.
+        Set error_move_to_dir as a string to move the file to a specific directory.
+    """
+    import json
+    try:
+        with open(file_path, 'r', encoding='utf8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        pass
+    except json.JSONDecodeError:
+        if error_move_to_dir:
+            move_to_path = None
+            try:
+                from pathlib import Path
+                from datetime import datetime
+                file_path = Path(file_path)
+                error_move_to_dir = Path(error_move_to_dir) if isinstance(error_move_to_dir, str) else file_path.parent
+                move_to_path = error_move_to_dir / file_path.with_stem(f'{file_path.stem}_corrupt_{datetime.now().strftime("%Y%m%d_%H%M%S")}').name
+                move_to_path.parent.mkdir(parents=True, exist_ok=True)
+                os.replace(file_path, move_to_path)
+            except Exception:
+                errors.report(f'Error moving "{file_path}" to tmp directory', exc_info=True)
+            errors.report(f'''Error loading {error_message or ""} "{file_path}"\nThe file is likely corrupt\nIt has been moved to "{move_to_path}" for backup\nWebUI will proceed with default values''', exc_info=True)
+        else:
+            errors.report(f'''Error loading {error_message or ""} "{file_path}" the file is likely corrupt\nYou may need to handle this error manually\nWebUI will proceed with default values''', exc_info=True)
+    except Exception:
+        errors.report(f'''Unexpected error loading "{file_path}"\nYou may need to handle this error manually\nWebUI will proceed with default values''', exc_info=True)
+    return default

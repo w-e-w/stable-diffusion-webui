@@ -1,13 +1,11 @@
-import os
 import json
 import sys
 from dataclasses import dataclass
 
 import gradio as gr
 
-from modules import errors
+from modules import errors, launch_utils
 from modules.shared_cmd_options import cmd_opts
-from modules.paths_internal import script_path
 
 
 class OptionInfo:
@@ -195,15 +193,8 @@ class Options:
         return type_x == type_y
 
     def load(self, filename):
-        try:
-            with open(filename, "r", encoding="utf8") as file:
-                self.data = json.load(file)
-        except FileNotFoundError:
-            self.data = {}
-        except Exception:
-            errors.report(f'\nCould not load settings\nThe config file "{filename}" is likely corrupted\nIt has been moved to the "tmp/config.json"\nReverting config to default\n\n''', exc_info=True)
-            os.replace(filename, os.path.join(script_path, "tmp", "config.json"))
-            self.data = {}
+        self.data = launch_utils.load_json_with_error_handling(filename, self.data, 'settings', True)
+
         # 1.6.0 VAE defaults
         if self.data.get('sd_vae_as_default') is not None and self.data.get('sd_vae_overrides_per_model_preferences') is None:
             self.data['sd_vae_overrides_per_model_preferences'] = not self.data.get('sd_vae_as_default')
