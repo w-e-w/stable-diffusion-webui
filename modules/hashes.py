@@ -4,7 +4,7 @@ import os.path
 from modules import shared, errors
 import modules.cache
 
-dump_cache = modules.cache.dump_cache
+dump_cache = modules.cache.dump_cache  # not used, but kept for compatibility
 cache = modules.cache.cache
 
 
@@ -60,8 +60,6 @@ def sha256(filename, title, use_addnet_hash=False):
         "mtime": os.path.getmtime(filename),
         "sha256": sha256_value,
     }
-
-    dump_cache()
 
     return sha256_value
 

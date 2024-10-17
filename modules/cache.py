@@ -118,6 +118,4 @@ def cached_data_for_file(subsection, title, filename, func):
         entry = {'mtime': ondisk_mtime, 'value': value}
         existing_cache[title] = entry
 
-        dump_cache()
-
     return entry['value']
