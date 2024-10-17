@@ -128,6 +128,7 @@ class EmbeddingDatabase:
         return self.register_embedding_by_name(embedding, model, embedding.name)
 
     def register_embedding_by_name(self, embedding, model, name):
+        # this will Error if the model is none
         ids = model.cond_stage_model.tokenize([name])[0]
         first_id = ids[0]
         if first_id not in self.ids_lookup:
