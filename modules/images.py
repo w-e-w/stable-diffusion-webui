@@ -168,6 +168,7 @@ def draw_grid_annotations(im, width, height, hor_texts, ver_texts, margin=0):
         for line in lines:
             fnt = initial_fnt
             fontsize = initial_fontsize
+            # Not Compatible with PIL >= 10.0.0
             while drawing.multiline_textsize(line.text, font=fnt)[0] > line.allowed_width and fontsize > 0:
                 fontsize -= 1
                 fnt = get_font(fontsize)
