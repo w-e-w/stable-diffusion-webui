@@ -12,22 +12,9 @@ class UpscalerDAT(Upscaler):
         self.user_path = user_path
         self.scalers = []
         super().__init__()
-        scalers = get_dat_models(self)
-
-        suffixes = [".pt", ".pth"]
-        local_model_paths = self.find_models(ext_filter=suffixes)
-        for scaler in scalers:
-            if scaler.local_data_path.startswith("http"):
-                filename = modelloader.friendly_name(scaler.local_data_path)
-
-                local_model_candidates = [local_model for local_model in local_model_paths if any(local_model.endswith(f"{filename}{ext}") for ext in suffixes)]
-                if local_model_candidates:
-                    scaler.local_data_path = local_model_candidates[0]
-
 
         for file in self.find_models(ext_filter=[".pt", ".pth"]):
             name = modelloader.friendly_name(file)
-
             scaler_data = UpscalerData(name, file, upscaler=self, scale=None)
             self.scalers.append(scaler_data)
 
