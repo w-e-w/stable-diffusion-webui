@@ -3,7 +3,7 @@ import os
 import gradio as gr
 
 from modules import errors, shared
-from modules.paths_internal import script_path, custom_theme_dir
+from modules.paths_internal import script_path
 
 
 # https://huggingface.co/datasets/freddyaboulton/gradio-theme-subdomains/resolve/main/subdomains.json
@@ -54,18 +54,14 @@ def reload_gradio_theme(theme_name=None):
         shared.gradio_theme = gr.themes.Default(**default_theme_args)
     else:
         try:
-            custom_theme = os.path.join(custom_theme_dir, f'{theme_name}.json')
-            if os.path.isfile(custom_theme):
-                shared.gradio_theme = gr.themes.ThemeClass.load(custom_theme)
+            theme_cache_dir = os.path.join(script_path, 'tmp', 'gradio_themes')
+            theme_cache_path = os.path.join(theme_cache_dir, f'{theme_name.replace("/", "_")}.json')
+            if shared.opts.gradio_themes_cache and os.path.exists(theme_cache_path):
+                shared.gradio_theme = gr.themes.ThemeClass.load(theme_cache_path)
             else:
-                theme_cache_dir = os.path.join(script_path, 'tmp', 'gradio_themes')
-                theme_cache_path = os.path.join(theme_cache_dir, f'{theme_name.replace("/", "_")}.json')
-                if shared.opts.gradio_themes_cache and os.path.exists(theme_cache_path):
-                    shared.gradio_theme = gr.themes.ThemeClass.load(theme_cache_path)
-                else:
-                    os.makedirs(theme_cache_dir, exist_ok=True)
-                    shared.gradio_theme = gr.themes.ThemeClass.from_hub(theme_name)
-                    shared.gradio_theme.dump(theme_cache_path)
+                os.makedirs(theme_cache_dir, exist_ok=True)
+                shared.gradio_theme = gr.themes.ThemeClass.from_hub(theme_name)
+                shared.gradio_theme.dump(theme_cache_path)
         except Exception as e:
             errors.display(e, "changing gradio theme")
             shared.gradio_theme = gr.themes.Default(**default_theme_args)
@@ -73,7 +69,6 @@ def reload_gradio_theme(theme_name=None):
     # append additional values gradio_theme
     shared.gradio_theme.sd_webui_modal_lightbox_toolbar_opacity = shared.opts.sd_webui_modal_lightbox_toolbar_opacity
     shared.gradio_theme.sd_webui_modal_lightbox_icon_opacity = shared.opts.sd_webui_modal_lightbox_icon_opacity
-    shared.gradio_theme.dump('tmp/gradio_theme.json')
 
 
 def resolve_var(name: str, gradio_theme=None, history=None):
