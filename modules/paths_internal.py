@@ -36,4 +36,6 @@ config_states_dir = os.path.join(script_path, "config_states")
 default_output_dir = os.path.join(data_path, "outputs")
 tmp = os.path.join(script_path, "tmp")
 
+custom_theme_dir = os.path.join(data_path, "themes")
+
 roboto_ttf_file = os.path.join(modules_path, 'Roboto-Regular.ttf')
