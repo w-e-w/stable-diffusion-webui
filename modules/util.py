@@ -1,9 +1,7 @@
 from __future__ import annotations
+from modules.paths_internal import script_path, cwd
 import os
 import re
-
-from modules import shared
-from modules.paths_internal import script_path, cwd
 
 
 def natural_sort_key(s, regex=re.compile('([0-9]+)')):
@@ -30,6 +28,7 @@ def html(filename):
 
 
 def walk_files(path, allowed_extensions=None):
+    from modules import shared
     if not os.path.exists(path):
         return
 
@@ -53,6 +52,7 @@ def walk_files(path, allowed_extensions=None):
 
 
 def ldm_print(*args, **kwargs):
+    from modules import shared
     if shared.opts.hide_ldm_prints:
         return
 
@@ -154,6 +154,7 @@ class MassFileLister:
         dirname, filename = os.path.split(path)
         if cached_dir := self.cached_dirs.get(dirname):
             cached_dir.update_entry(filename)
+
 
 def topological_sort(dependencies):
     """Accepts a dictionary mapping name to its dependencies, returns a list of names ordered according to dependencies.
