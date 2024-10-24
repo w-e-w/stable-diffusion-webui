@@ -7,7 +7,9 @@ import shlex
 from pathlib import Path
 
 
-normalized_filepath = lambda filepath: str(Path(filepath).absolute())
+def normalized_filepath(filepath):
+    return str(Path(filepath).absolute())
+
 
 commandline_args = os.environ.get('COMMANDLINE_ARGS', "")
 sys.argv += shlex.split(commandline_args)
