@@ -78,49 +78,30 @@ def expand_crop_region(crop_region, processing_width, processing_height, image_w
 
 
 def expand_too_small_crop_region(crop_region, processing_width, processing_height, image_width, image_height):
-    """expands crop region to not have width and height smaller then processing_width and processing_height"""
+    """expands a crop_region to not have dimensions smaller than processing_dimensions"""
+
+    def _expand_segment(c1, c2, processing_dimension, image_dimension):
+        """expands the segment given by c1 c2 to the desired_dimension but not exceeding the boundaries of the image_dimension"""
+        if (diff := processing_dimension + c1 - c2) > 0:
+            # if the region is smaller than processing_dimension, extend both sides equally
+            diff_l = diff // 2
+            c1 -= diff_l
+            c2 += diff - diff_l
+            if c1 < 0:  # shift the region to the right by c1
+                c2 = min(c2 - c1, image_dimension)  # ensure c2 is within image_dimension
+                c1 = 0
+            elif c2 >= image_dimension:  # shift the region to the left by (c2 - image_dimension)
+                c1 = max(c1 - c2 + image_dimension, 0)  # ensure c1 is not below 0
+                c2 = image_dimension
+        return c1, c2
 
     x1, y1, x2, y2 = crop_region
-
-    desired_w = processing_width
-    diff_w = desired_w - (x2 - x1)
-    if diff_w > 0:
-        diff_w_l = diff_w // 2
-        diff_w_r = diff_w - diff_w_l
-        x1 -= diff_w_l
-        x2 += diff_w_r
-        if x2 >= image_width:
-            diff = x2 - image_width
-            x2 -= diff
-            x1 -= diff
-        if x1 < 0:
-            x2 -= x1
-            x1 -= x1
-        if x2 >= image_width:
-            x2 = image_width
-
-    desired_h = processing_height
-    diff_h = desired_h - (y2 - y1)
-    if diff_h > 0:
-        diff_h_u = diff_h // 2
-        diff_h_d = diff_h - diff_h_u
-        y1 -= diff_h_u
-        y2 += diff_h_d
-        if y2 >= image_height:
-            diff = y2 - image_height
-            y2 -= diff
-            y1 -= diff
-        if y1 < 0:
-            y2 -= y1
-            y1 -= y1
-        if y2 >= image_height:
-            y2 = image_height
-
-    if diff_h > 0 or diff_w > 0:
-        print("Crop region was smaller then resolution and has been corrected")
-
-    return x1, y1, x2, y2
-
+    x1, x2 = _expand_segment(x1, x2, processing_width, image_width)
+    y1, y2 = _expand_segment(y1, y2, processing_height, image_height)
+    new_crop_region = x1, y1, x2, y2
+    if new_crop_region != crop_region:
+        print(f"Crop region {crop_region} was smaller then process resolution and has been expanded to {new_crop_region}")
+    return new_crop_region
 
 
 def fill(image, mask):
