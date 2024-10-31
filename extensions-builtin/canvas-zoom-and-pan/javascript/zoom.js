@@ -470,11 +470,20 @@ onUiLoaded(async() => {
                 if (!withoutValue) {
                     const maxValue =
                         parseFloat(input.getAttribute("max")) || 100;
-                    const changeAmount = maxValue * (percentage / 100);
-                    const newValue =
-                        parseFloat(input.value) +
-                        (deltaY > 0 ? -changeAmount : changeAmount);
-                    input.value = Math.min(Math.max(newValue, 0), maxValue);
+                    if (opts.canvas_hotkey_brush_scale === "Radius") {
+                        const changeAmount = maxValue * (percentage / 100);
+                        const newValue =
+                            parseFloat(input.value) +
+                            (deltaY > 0 ? -changeAmount : changeAmount);
+                        input.value = Math.min(Math.max(newValue, 0), maxValue);
+                    } else {
+                        const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor
+                        const currentRadius = parseFloat(input.value);
+                        const currentArea = currentRadius ** 2;
+                        const newArea = currentArea * brush_factor;
+                        const newValue = Math.sqrt(newArea);
+                        input.value = Math.min(Math.max(newValue, 0), maxValue);
+                    }
                     input.dispatchEvent(new Event("change"));
                 }
             }
