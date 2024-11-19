@@ -16,6 +16,6 @@ shared.options_templates.update(shared.options_section(('canvas_hotkey', "Canvas
     "canvas_auto_expand": shared.OptionInfo(True, "Automatically expands an image that does not fit completely in the canvas area, similar to manually pressing the S and R buttons"),
     "canvas_blur_prompt": shared.OptionInfo(False, "Take the focus off the prompt when working with a canvas"),
     "canvas_disabled_functions": shared.OptionInfo(["Overlap"], "Disable function that you don't use", gr.CheckboxGroup, {"choices": ["Zoom", "Adjust brush size", "Hotkey enlarge brush", "Hotkey shrink brush", "Undo", "Clear", "Moving canvas", "Fullscreen", "Reset Zoom", "Overlap"]}),
-    "canvas_hotkey_brush_scale": shared.OptionInfo("Radius", "Brush scale", gr.Radio, {"choices": ["Radius", "Area"]}),
+    "canvas_hotkey_brush_factor_mode": shared.OptionInfo("Area", "Brush size adjustment mode", gr.Radio, {"choices": ["Area", "Radius"]}),
     "canvas_hotkey_brush_factor": shared.OptionInfo(0.1, "Brush factor", gr.Slider, {"minimum": 0, "maximum": 2, "step": 0.01})
 }))

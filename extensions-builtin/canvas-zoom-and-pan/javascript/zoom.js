@@ -476,7 +476,7 @@ onUiLoaded(async() => {
                 if (!withoutValue) {
                     const maxValue =
                         parseFloat(input.getAttribute("max")) || 100;
-                    if (opts.canvas_hotkey_brush_scale === "Radius") {
+                    if (opts.canvas_hotkey_brush_factor_mode === "Radius") {
                         const changeAmount = maxValue * (percentage / 100);
                         const newValue =
                             parseFloat(input.value) +
