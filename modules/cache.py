@@ -6,7 +6,7 @@ import threading
 import diskcache
 import tqdm
 
-from modules.paths import data_path, script_path
+from modules.paths_internal import data_path, script_path
 
 cache_filename = os.environ.get('SD_WEBUI_CACHE_FILE', os.path.join(data_path, "cache.json"))
 cache_dir = os.environ.get('SD_WEBUI_CACHE_DIR', os.path.join(data_path, "cache"))

@@ -7,11 +7,12 @@ from dataclasses import dataclass
 
 import gradio as gr
 
-from modules import shared, paths, script_callbacks, extensions, script_loading, scripts_postprocessing, errors, timer, util
+from modules import shared, paths_internal, script_callbacks, extensions, script_loading, scripts_postprocessing, errors, timer, util
 
 topological_sort = util.topological_sort
 
 AlwaysVisible = object()
+
 
 class MaskBlendArgs:
     def __init__(self, current_latent, nmask, init_latent, mask, blended_latent, denoiser=None, sigma=None):
@@ -363,7 +364,7 @@ class ScriptBuiltinUI(Script):
         return AlwaysVisible
 
 
-current_basedir = paths.script_path
+current_basedir = paths_internal.script_path
 
 
 def basedir():
@@ -397,7 +398,7 @@ def list_scripts(scriptdirname, extension, *, include_extensions=True):
     loaded_extensions_scripts = {ext.canonical_name: [] for ext in extensions.active()}
 
     # build script dependency map
-    root_script_basedir = os.path.join(paths.script_path, scriptdirname)
+    root_script_basedir = os.path.join(paths_internal.script_path, scriptdirname)
     if os.path.exists(root_script_basedir):
         for filename in sorted(os.listdir(root_script_basedir)):
             if not os.path.isfile(os.path.join(root_script_basedir, filename)):
@@ -406,7 +407,7 @@ def list_scripts(scriptdirname, extension, *, include_extensions=True):
             if os.path.splitext(filename)[1].lower() != extension:
                 continue
 
-            script_file = ScriptFile(paths.script_path, filename, os.path.join(root_script_basedir, filename))
+            script_file = ScriptFile(paths_internal.script_path, filename, os.path.join(root_script_basedir, filename))
             scripts[filename] = ScriptWithDependencies(filename, script_file, [], [], [])
 
     if include_extensions:
@@ -471,7 +472,7 @@ def list_scripts(scriptdirname, extension, *, include_extensions=True):
 def list_files_with_name(filename):
     res = []
 
-    dirs = [paths.script_path] + [ext.path for ext in extensions.active()]
+    dirs = [paths_internal.script_path] + [ext.path for ext in extensions.active()]
 
     for dirpath in dirs:
         if not os.path.isdir(dirpath):
@@ -508,7 +509,7 @@ def load_scripts():
     # processing_script is not considered though
     for scriptfile in scripts_list:
         try:
-            if scriptfile.basedir != paths.script_path:
+            if scriptfile.basedir != paths_internal.script_path:
                 sys.path = [scriptfile.basedir] + sys.path
             current_basedir = scriptfile.basedir
 
@@ -520,7 +521,7 @@ def load_scripts():
 
         finally:
             sys.path = syspath
-            current_basedir = paths.script_path
+            current_basedir = paths_internal.script_path
             timer.startup_timer.record(scriptfile.filename)
 
     global scripts_txt2img, scripts_img2img, scripts_postproc
