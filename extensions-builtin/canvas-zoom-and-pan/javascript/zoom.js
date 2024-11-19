@@ -483,7 +483,7 @@ onUiLoaded(async() => {
                             (deltaY > 0 ? -changeAmount : changeAmount);
                         input.value = Math.min(Math.max(newValue, 0), maxValue);
                     } else {
-                        const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor
+                        const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor;
                         const currentRadius = parseFloat(input.value);
                         let delta = Math.sqrt(currentRadius ** 2 * brush_factor) - currentRadius;
                         // gradio seems to have a minimum brush size step of 1
