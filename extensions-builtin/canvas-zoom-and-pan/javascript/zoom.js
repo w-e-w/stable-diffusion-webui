@@ -238,7 +238,9 @@ onUiLoaded(async() => {
         "Moving canvas": "canvas_hotkey_move",
         "Fullscreen": "canvas_hotkey_fullscreen",
         "Reset Zoom": "canvas_hotkey_reset",
-        "Overlap": "canvas_hotkey_overlap"
+        "Overlap": "canvas_hotkey_overlap",
+        "Undo": "canvas_hotkey_undo",
+        "Clear": "canvas_hotkey_clear"
     };
 
     // Loading the configuration from opts
