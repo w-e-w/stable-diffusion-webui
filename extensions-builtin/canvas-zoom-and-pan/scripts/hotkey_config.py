@@ -7,6 +7,7 @@ shared.options_templates.update(shared.options_section(('canvas_hotkey', "Canvas
     "canvas_hotkey_shrink_brush": shared.OptionInfo("Q", "Shrink the brush size"),
     "canvas_hotkey_grow_brush": shared.OptionInfo("W", "Enlarge the brush size"),
     "canvas_hotkey_move": shared.OptionInfo("F", "Moving the canvas").info("To work correctly in firefox, turn off 'Automatically search the page text when typing' in the browser settings"),
+    "canvas_hotkey_undo": shared.OptionInfo("Z", "Undo brush stroke"),
     "canvas_hotkey_fullscreen": shared.OptionInfo("S", "Fullscreen Mode, maximizes the picture so that it fits into the screen and stretches it to its full width "),
     "canvas_hotkey_reset": shared.OptionInfo("R", "Reset zoom and canvas position"),
     "canvas_hotkey_overlap": shared.OptionInfo("O", "Toggle overlap").info("Technical button, needed for testing"),

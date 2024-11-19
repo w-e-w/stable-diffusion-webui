@@ -226,6 +226,7 @@ onUiLoaded(async() => {
         canvas_show_tooltip: true,
         canvas_auto_expand: true,
         canvas_blur_prompt: false,
+        canvas_hotkey_undo: "KeyZ",
     };
 
     const functionMap = {
@@ -321,6 +322,7 @@ onUiLoaded(async() => {
                     action: "Adjust brush size",
                     keySuffix: " + wheel"
                 },
+                {configKey: "canvas_hotkey_undo", action: "Undo brush stroke"},
                 {configKey: "canvas_hotkey_reset", action: "Reset zoom"},
                 {
                     configKey: "canvas_hotkey_fullscreen",
@@ -487,6 +489,11 @@ onUiLoaded(async() => {
                     input.dispatchEvent(new Event("change"));
                 }
             }
+        }
+
+        // Undo the last brush stroke by clicking the undo button
+        function undoBrushStroke() {
+            gradioApp().querySelector(`${elemId} button[aria-label='Undo']`).click();
         }
 
         // Reset zoom when uploading a new image
@@ -708,7 +715,8 @@ onUiLoaded(async() => {
                 [hotkeysConfig.canvas_hotkey_overlap]: toggleOverlap,
                 [hotkeysConfig.canvas_hotkey_fullscreen]: fitToScreen,
                 [hotkeysConfig.canvas_hotkey_shrink_brush]: () => adjustBrushSize(elemId, 10),
-                [hotkeysConfig.canvas_hotkey_grow_brush]: () => adjustBrushSize(elemId, -10)
+                [hotkeysConfig.canvas_hotkey_grow_brush]: () => adjustBrushSize(elemId, -10),
+                [hotkeysConfig.canvas_hotkey_undo]: undoBrushStroke
             };
 
             const action = hotkeyActions[event.code];
