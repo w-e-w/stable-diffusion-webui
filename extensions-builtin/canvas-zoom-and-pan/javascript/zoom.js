@@ -483,7 +483,12 @@ onUiLoaded(async() => {
                         const currentRadius = parseFloat(input.value);
                         const currentArea = currentRadius ** 2;
                         const newArea = currentArea * brush_factor;
-                        const newValue = Math.sqrt(newArea);
+                        let delta = Math.sqrt(newArea) - currentRadius;
+                        // gradio seems to have a minimum brush size step of 1
+                        if (Math.abs(delta) < 1) {
+                            delta = delta > 0 ? 1 : -1;
+                        }
+                        const newValue = currentRadius + delta;
                         input.value = Math.min(Math.max(newValue, 0), maxValue);
                     }
                     input.dispatchEvent(new Event("change"));
