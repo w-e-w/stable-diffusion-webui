@@ -142,8 +142,8 @@ def get_dict():
         "Exceptions": errors.get_exceptions(),
         "CPU": get_cpu_info(),
         "RAM": get_ram_info(),
-        "Extensions": get_extensions(enabled=True, fallback_disabled_extensions=config.get('disabled_extensions', [])),
-        "Inactive extensions": get_extensions(enabled=False, fallback_disabled_extensions=config.get('disabled_extensions', [])),
+        "Extensions": get_extensions(enabled=True, config=config),
+        "Inactive extensions": get_extensions(enabled=False, config=config),
         "Environment": get_environment(),
         "Config": config,
         "Startup": timer.startup_record,
@@ -197,7 +197,7 @@ def get_info_from_repo_path(path: Path):
     }
 
 
-def get_extensions(*, enabled, fallback_disabled_extensions=None):
+def get_extensions(*, enabled, config=None):
     try:
         from modules import extensions
         if extensions.extensions:
@@ -211,7 +211,11 @@ def get_extensions(*, enabled, fallback_disabled_extensions=None):
                 }
             return [to_json(x) for x in extensions.extensions if not x.is_builtin and x.enabled == enabled]
         else:
-            return [get_info_from_repo_path(d) for d in Path(paths_internal.extensions_dir).iterdir() if d.is_dir() and enabled != (str(d.name) in fallback_disabled_extensions)]
+            try:
+                disabled_extensions = config.get('disabled_extensions', [])
+            except Exception as _:
+                disabled_extensions = []
+            return [get_info_from_repo_path(d) for d in Path(paths_internal.extensions_dir).iterdir() if d.is_dir() and enabled != (str(d.name) in disabled_extensions)]
     except Exception as e:
         return str(e)
 
