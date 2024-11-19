@@ -426,19 +426,19 @@ class Script(scripts.Script):
                 with gr.Row():
                     x_type = gr.Dropdown(label="X type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[1].label, type="index", elem_id=self.elem_id("x_type"))
                     x_values = gr.Textbox(label="X values", lines=1, elem_id=self.elem_id("x_values"))
-                    x_values_dropdown = gr.Dropdown(label="X values", visible=False, multiselect=True, interactive=True)
+                    x_values_dropdown = gr.Dropdown(label="X values", visible=False, multiselect=True, interactive=True, elem_id=self.elem_id("x_values_list"))
                     fill_x_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_x_tool_button", visible=False)
 
                 with gr.Row():
                     y_type = gr.Dropdown(label="Y type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[0].label, type="index", elem_id=self.elem_id("y_type"))
                     y_values = gr.Textbox(label="Y values", lines=1, elem_id=self.elem_id("y_values"))
-                    y_values_dropdown = gr.Dropdown(label="Y values", visible=False, multiselect=True, interactive=True)
+                    y_values_dropdown = gr.Dropdown(label="Y values", visible=False, multiselect=True, interactive=True, elem_id=self.elem_id("y_values_list"))
                     fill_y_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_y_tool_button", visible=False)
 
                 with gr.Row():
                     z_type = gr.Dropdown(label="Z type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[0].label, type="index", elem_id=self.elem_id("z_type"))
                     z_values = gr.Textbox(label="Z values", lines=1, elem_id=self.elem_id("z_values"))
-                    z_values_dropdown = gr.Dropdown(label="Z values", visible=False, multiselect=True, interactive=True)
+                    z_values_dropdown = gr.Dropdown(label="Z values", visible=False, multiselect=True, interactive=True, elem_id=self.elem_id("z_values_list"))
                     fill_z_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_z_tool_button", visible=False)
 
         with gr.Row(variant="compact", elem_id="axis_options"):
