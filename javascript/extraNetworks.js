@@ -247,9 +247,12 @@ function tryToRemoveExtraNetworkFromPrompt(textarea, text, isNeg) {
 
 function updatePromptArea(text, textArea, isNeg) {
     if (!tryToRemoveExtraNetworkFromPrompt(textArea, text, isNeg)) {
-        textArea.value = textArea.value + opts.extra_networks_add_text_separator + text;
+        if (textArea.value.endsWith(opts.extra_networks_add_text_separator)) {
+            textArea.value = textArea.value + text;
+        } else {
+            textArea.value = textArea.value + opts.extra_networks_add_text_separator + text;
+        }
     }
-
     updateInput(textArea);
 }
 
