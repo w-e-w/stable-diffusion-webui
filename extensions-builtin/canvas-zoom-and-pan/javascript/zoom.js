@@ -474,25 +474,16 @@ onUiLoaded(async() => {
             if (input) {
                 input.click();
                 if (!withoutValue) {
-                    const maxValue =
-                        parseFloat(input.getAttribute("max")) || 100;
-                    if (opts.canvas_hotkey_brush_factor_mode === "Radius") {
-                        const changeAmount = maxValue * (percentage / 100);
-                        const newValue =
-                            parseFloat(input.value) +
-                            (deltaY > 0 ? -changeAmount : changeAmount);
-                        input.value = Math.min(Math.max(newValue, 0), maxValue);
-                    } else {
-                        const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor;
-                        const currentRadius = parseFloat(input.value);
-                        let delta = Math.sqrt(currentRadius ** 2 * brush_factor) - currentRadius;
-                        // gradio seems to have a minimum brush size step of 1
-                        if (Math.abs(delta) < 1) {
-                            delta = delta > 0 ? 1 : -1;
-                        }
-                        const newValue = currentRadius + delta;
-                        input.value = Math.min(Math.max(newValue, 0), maxValue);
+                    const maxValue = parseFloat(input.getAttribute("max")) || 100;
+                    const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor;
+                    const currentRadius = parseFloat(input.value);
+                    let delta = Math.sqrt(currentRadius ** 2 * brush_factor) - currentRadius;
+                    // minimum brush size step of 1
+                    if (Math.abs(delta) < 1) {
+                        delta = deltaY > 0 ? -1 : 1;
                     }
+                    let newValue = currentRadius + delta;
+                    input.value = Math.min(Math.max(newValue, 1), maxValue);
                     input.dispatchEvent(new Event("change"));
                 }
             }
