@@ -474,12 +474,16 @@ onUiLoaded(async() => {
                 input.click();
                 if (!withoutValue) {
                     const maxValue = parseFloat(input.getAttribute("max")) || 100;
+                    const minValue = parseFloat(input.getAttribute("min")) || 1;
                     // allow brush size up to 1/2 diagonal of the image, beyond gradio's arbitrary limit
                     const canvasImg = gradioApp().querySelector(`${elemId} img`);
                     if (canvasImg) {
                         const maxDiameter = Math.sqrt(canvasImg.naturalWidth ** 2 + canvasImg.naturalHeight ** 2) / 2;
                         if (maxDiameter > maxValue) {
                             input.setAttribute("max", maxDiameter);
+                        }
+                        if (minValue > 1) {
+                            input.setAttribute("min", '1');
                         }
                     }
                     const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor;
