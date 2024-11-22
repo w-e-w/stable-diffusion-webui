@@ -482,8 +482,18 @@ onUiLoaded(async() => {
                     if (Math.abs(delta) < 1) {
                         delta = deltaY > 0 ? -1 : 1;
                     }
-                    let newValue = currentRadius + delta;
-                    input.value = Math.min(Math.max(newValue, 1), maxValue);
+                    const newValue = currentRadius + delta;
+                    // allow increasing the brush size beyond what's limited by gradio up to 1/2 diagonal of the image
+                    if (newValue > maxValue) {
+                        const canvasImg = gradioApp().querySelector(`${elemId} img`);
+                        if (canvasImg) {
+                            const maxDiameter = Math.sqrt(canvasImg.naturalWidth ** 2 + canvasImg.naturalHeight ** 2) / 2;
+                            if (newValue < maxDiameter) {
+                                input.setAttribute("max", newValue);
+                            }
+                        }
+                    }
+                    input.value = Math.max(newValue, 1);
                     input.dispatchEvent(new Event("change"));
                 }
             }
