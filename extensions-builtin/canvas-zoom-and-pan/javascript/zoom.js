@@ -470,11 +470,18 @@ onUiLoaded(async() => {
                 gradioApp().querySelector(
                     `${elemId} button[aria-label="Use brush"]`
                 );
-
             if (input) {
                 input.click();
                 if (!withoutValue) {
                     const maxValue = parseFloat(input.getAttribute("max")) || 100;
+                    // allow brush size up to 1/2 diagonal of the image, beyond gradio's arbitrary limit
+                    const canvasImg = gradioApp().querySelector(`${elemId} img`);
+                    if (canvasImg) {
+                        const maxDiameter = Math.sqrt(canvasImg.naturalWidth ** 2 + canvasImg.naturalHeight ** 2) / 2;
+                        if (maxDiameter > maxValue) {
+                            input.setAttribute("max", maxDiameter);
+                        }
+                    }
                     const brush_factor = deltaY > 0 ? 1 - opts.canvas_hotkey_brush_factor : 1 + opts.canvas_hotkey_brush_factor;
                     const currentRadius = parseFloat(input.value);
                     let delta = Math.sqrt(currentRadius ** 2 * brush_factor) - currentRadius;
@@ -483,16 +490,6 @@ onUiLoaded(async() => {
                         delta = deltaY > 0 ? -1 : 1;
                     }
                     const newValue = currentRadius + delta;
-                    // allow increasing the brush size beyond what's limited by gradio up to 1/2 diagonal of the image
-                    if (newValue > maxValue) {
-                        const canvasImg = gradioApp().querySelector(`${elemId} img`);
-                        if (canvasImg) {
-                            const maxDiameter = Math.sqrt(canvasImg.naturalWidth ** 2 + canvasImg.naturalHeight ** 2) / 2;
-                            if (newValue < maxDiameter) {
-                                input.setAttribute("max", newValue);
-                            }
-                        }
-                    }
                     input.value = Math.max(newValue, 1);
                     input.dispatchEvent(new Event("change"));
                 }
