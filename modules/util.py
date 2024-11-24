@@ -310,8 +310,16 @@ class GenerationParametersList(list):
     if return str, the value will be written to infotext, if return None will be ignored.
     """
 
+    def __init__(self, *args, to_be_clear_before_batch=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._to_be_clear_before_batch = to_be_clear_before_batch
+
     def __call__(self, *args, **kwargs):
         return ', '.join(sorted(set(self), key=natural_sort_key))
+
+    @property
+    def to_be_clear_before_batch(self):
+        return self._to_be_clear_before_batch
 
     def __add__(self, other):
         if isinstance(other, GenerationParametersList):
