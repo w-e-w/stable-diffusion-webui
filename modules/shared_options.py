@@ -33,12 +33,12 @@ categories.register_category("training", "Training")
 
 options_templates.update(options_section(('saving-images', "Saving images/grids", "saving"), {
     "samples_save": OptionInfo(True, "Always save all generated images"),
-    "samples_format": OptionInfo('png', 'File format for images', gr.Dropdown, {"choices": ("jpg", "jpeg", "png", "webp", "avif")}),
+    "samples_format": OptionInfo('png', 'File format for images', ui_components.DropdownEditable, {"choices": ("png", "jpg", "jpeg", "webp", "avif")}).info("manual input of other formats supported by PIL is possible, but may have limited compatibility with other features"),
     "samples_filename_pattern": OptionInfo("", "Images filename pattern", component_args=hide_dirs).link("wiki", "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Custom-Images-Filename-Name-and-Subdirectory"),
     "save_images_add_number": OptionInfo(True, "Add number to filename when saving", component_args=hide_dirs),
     "save_images_replace_action": OptionInfo("Replace", "Saving the image to an existing file", gr.Radio, {"choices": ["Replace", "Add number suffix"], **hide_dirs}),
     "grid_save": OptionInfo(True, "Always save all generated image grids"),
-    "grid_format": OptionInfo('png', 'File format for grids', gr.Dropdown, {"choices": ("jpg", "jpeg", "png", "webp", "avif")}),
+    "grid_format": OptionInfo('png', 'File format for grids', ui_components.DropdownEditable, {"choices": ("png", "jpg", "jpeg", "webp", "avif")}).info("manual input of other formats supported by PIL is possible, but may have limited compatibility with other features"),
     "grid_extended_filename": OptionInfo(False, "Add extended info (seed, prompt) to filename when saving grid"),
     "grid_only_if_multiple": OptionInfo(True, "Do not save grids consisting of one picture"),
     "grid_prevent_empty_spots": OptionInfo(False, "Prevent empty spots in grid (when set to autodetect)"),
