@@ -497,11 +497,11 @@ class Script(scripts.Script):
                 choices = choices()
                 if csv_mode:
                     if axis_values_dropdown:
-                        axis_values = list_to_csv_string(list(filter(lambda x: x in choices, axis_values_dropdown)))
+                        axis_values = list_to_csv_string(axis_values_dropdown)
                         axis_values_dropdown = []
                 else:
                     if axis_values:
-                        axis_values_dropdown = list(filter(lambda x: x in choices, csv_string_to_list_strip(axis_values)))
+                        axis_values_dropdown = csv_string_to_list_strip(axis_values)
                         axis_values = ""
 
             return (gr.Button.update(visible=has_choices), gr.Textbox.update(visible=not has_choices or csv_mode, value=axis_values),
