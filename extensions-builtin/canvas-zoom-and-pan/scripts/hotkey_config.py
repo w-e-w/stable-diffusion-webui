@@ -17,4 +17,6 @@ shared.options_templates.update(shared.options_section(('canvas_hotkey', "Canvas
     "canvas_blur_prompt": shared.OptionInfo(False, "Take the focus off the prompt when working with a canvas"),
     "canvas_disabled_functions": shared.OptionInfo(["Overlap"], "Disable function that you don't use", gr.CheckboxGroup, {"choices": ["Zoom", "Adjust brush size", "Hotkey enlarge brush", "Hotkey shrink brush", "Undo", "Clear", "Moving canvas", "Fullscreen", "Reset Zoom", "Overlap"]}),
     "canvas_hotkey_brush_factor": shared.OptionInfo(0.1, "Brush size change rate", gr.Slider, {"minimum": 0, "maximum": 1, "step": 0.01}).info('controls how much the brush size is changed when using hotkeys or scroll wheel'),
+    "canvas_hotkey_mask_import_mode": shared.OptionInfo("Add", "Mask / Sketch upload behavior", gr.Radio, {"choices": ["Add", "Replace"]}).info("Add: stack upload on top of existing, Replace: replace existing with upload"),
+
 }))

@@ -64,3 +64,43 @@
 .styler {
   overflow:inherit !important;
 }
+
+.canvas-import-export-container {
+  display: flex;
+  position: absolute;
+  bottom: var(--size-2);
+  right: var(--size-2);
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  z-index: var(--layer-5);
+
+}
+
+.canvas-import-export-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow-drop);
+  border: 1px solid var(--button-secondary-border-color);
+  border-radius: var(--radius-sm);
+  background: var(--background-fill-primary);
+  padding: 2px !important;
+  background-color: var(--background-fill-primary) !important;
+}
+
+.canvas-import-export-div {
+  padding: 2px;
+  width: 14px;
+  height: 14px;
+}
+
+.canvas-import-button-svg {
+  transform: rotate(180deg);
+}
+
+.canvas-export-button-svg {
+}
+
+.image-container:not(:has(> div > div > canvas)) > .canvas-import-export-container {
+    display: none;
+}

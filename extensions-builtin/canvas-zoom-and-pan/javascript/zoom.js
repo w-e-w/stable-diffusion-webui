@@ -508,6 +508,111 @@ onUiLoaded(async() => {
         function clearCanvas() {
             gradioApp().querySelector(`${elemId} button[aria-label='Clear']`).click();
         }
+        function getPaintCanvas() {
+            const colorPicker = gradioApp().querySelector(`${elemId} button[aria-label='Select brush color']`);
+            if (colorPicker) {
+                return gradioApp().querySelector(`${elemId} canvas[key='temp']`);
+            } else {
+                return gradioApp().querySelector(`${elemId} canvas[key='mask']`);
+            }
+        }
+
+        const UploadElement = document.createElement('input');
+        UploadElement.type = 'file';
+        UploadElement.accept = 'image/*';
+
+        function UpdateCanvasMaskAfterUpload(event) {
+            const targetCanvas = getPaintCanvas();
+            const interfaceCanvas = gradioApp().querySelector(`${elemId} canvas[key='interface']`);
+            if (!targetCanvas || !interfaceCanvas) {
+                console.error("Canvas element not found!");
+                return;
+            }
+            const file = event.target.files[0];
+            event.target.value = null;
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const ctx = targetCanvas.getContext('2d');
+                        if (opts.canvas_hotkey_mask_import_mode === "Replace") {
+                            // Clear the canvas
+                            ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+                        }
+                        // Draw the uploaded image
+                        ctx.drawImage(img, 0, 0, targetCanvas.width, targetCanvas.height);
+                        // Simulate a brush stroke on the canvas off-screen to update the current mask
+                        let mouseDown = new MouseEvent("mousedown", {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                            clientX: -1e+100,
+                            clientY: -1e+100
+                        });
+                        interfaceCanvas.dispatchEvent(mouseDown);
+                        let mouseUp = new MouseEvent('mouseup', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                            clientX: -1e+100,
+                            clientY: -1e+100
+                        });
+                        interfaceCanvas.dispatchEvent(mouseUp);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        UploadElement.addEventListener('change', UpdateCanvasMaskAfterUpload, {passive: true});
+
+        function importMask() {
+            UploadElement.click();
+        }
+
+        function exportMask() {
+            const targetCanvas = getPaintCanvas();
+            if (!targetCanvas) {
+                console.error("Canvas element not found!");
+                return;
+            }
+            const imageUrl = targetCanvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `mask-image-${new Date().toISOString().replace(/:/g, '-').split('.')[0]}.png`;
+            link.click();
+            link.remove();
+        }
+
+        function createImportExportButtons() {
+            const imageContainer = targetElement.querySelector(".image-container");
+            const buttonContainer = document.createElement("div");
+            buttonContainer.classList.add("canvas-import-export-container");
+
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 32 32"><path fill="currentColor" d="M26 24v4H6v-4H4v4a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-4zm0-10l-1.41-1.41L17 20.17V2h-2v18.17l-7.59-7.58L6 14l10 10l10-10z"></path></svg>`;
+            const importButton = document.createElement("button");
+            importButton.setAttribute('aria-label', 'Import mask');
+            importButton.setAttribute('title', 'Import mask');
+            importButton.classList.add('canvas-import-export-button');
+            importButton.innerHTML = `<div class="canvas-import-export-div canvas-import-button-svg">${svgIcon}</div>`;
+
+            const exportButton = document.createElement("button");
+            exportButton.setAttribute('aria-label', 'Export mask');
+            exportButton.setAttribute('title', 'Export mask');
+            exportButton.classList.add('canvas-import-export-button');
+            exportButton.innerHTML = `<div class="canvas-import-export-div canvas-export-button-svg">${svgIcon}</div>`;
+
+            buttonContainer.appendChild(importButton);
+            buttonContainer.appendChild(exportButton);
+            imageContainer.appendChild(buttonContainer);
+
+            importButton.addEventListener("click", importMask);
+            exportButton.addEventListener("click", exportMask);
+
+        }
+
+        createImportExportButtons();
 
         // Reset zoom when uploading a new image
         const fileInput = gradioApp().querySelector(
