@@ -12,7 +12,7 @@ from omegaconf import OmegaConf, ListConfig
 from urllib import request
 import ldm.modules.midas as midas
 
-from modules import paths, shared, modelloader, devices, script_callbacks, sd_vae, sd_disable_initialization, errors, hashes, sd_models_config, sd_unet, sd_models_xl, cache, extra_networks, processing, lowvram, sd_hijack, patches
+from modules import paths, shared, modelloader, devices, script_callbacks, sd_vae, sd_disable_initialization, errors, hashes, sd_models_config, sd_unet, sd_models_xl, cache, extra_networks, processing, lowvram, sd_hijack, patches, util
 from modules.hashes import partial_hash_from_cache as model_hash  # noqa: F401 for backwards compatibility
 from modules.timer import Timer
 from modules.shared import opts
@@ -148,7 +148,7 @@ def setup_model():
 
 
 def checkpoint_tiles(use_short=False):
-    return [x.short_title if use_short else x.title for x in checkpoints_list.values()]
+    return sorted([x.short_title if use_short else x.title for x in checkpoints_list.values()], key=util.natural_sort_key)
 
 
 def list_models():
