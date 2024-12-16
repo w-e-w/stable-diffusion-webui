@@ -24,15 +24,18 @@
                 char = textArea.value[i];
             }
 
-            for (const [open, close, label] of pairs) {
-                const lb = escaped ? `escaped ${label}` : label;
+            if (escaped) {
+                i++;
+                continue;
+            }
 
+            for (const [open, close, label] of pairs) {
                 if (char === open) {
-                    counts[lb] = (counts[lb] || 0) + 1;
+                    counts[label] = (counts[label] || 0) + 1;
                 } else if (char === close) {
-                    counts[lb] = (counts[lb] || 0) - 1;
-                    if (counts[lb] < 0) {
-                        errors.add(`Incorrect order of ${lb}.`);
+                    counts[label] = (counts[label] || 0) - 1;
+                    if (counts[label] < 0) {
+                        errors.add(`Incorrect order of ${label}.`);
                     }
                 }
             }
@@ -49,21 +52,6 @@
                 errors.add(`${open} ... ${close} - Detected ${counts[label]} more opening than closing ${label}.`);
             } else if (counts[label] < 0) {
                 errors.add(`${open} ... ${close} - Detected ${-counts[label]} more closing than opening ${label}.`);
-            }
-        }
-
-        for (const [open, close, label] of pairs) {
-            const lb = `escaped ${label}`;
-            if (counts[lb] == undefined) {
-                continue;
-            }
-
-            const op = `\\${open}`;
-            const cl = `\\${close}`;
-            if (counts[lb] > 0) {
-                errors.add(`${op} ... ${cl} - Detected ${counts[lb]} more opening than closing ${lb}.`);
-            } else if (counts[lb] < 0) {
-                errors.add(`${op} ... ${cl} - Detected ${-counts[lb]} more closing than opening ${lb}.`);
             }
         }
 
