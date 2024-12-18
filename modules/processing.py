@@ -916,6 +916,7 @@ def process_images_inner(p: StableDiffusionProcessing) -> Processed:
 
     infotexts = []
     output_images = []
+    images_before_color_correction = []
     with torch.no_grad(), p.sd_model.ema_scope():
         with devices.autocast():
             p.init(p.all_prompts, p.all_seeds, p.all_subseeds)
@@ -1065,6 +1066,11 @@ def process_images_inner(p: StableDiffusionProcessing) -> Processed:
                     mask_for_overlay, overlay_image = ppmo.mask_for_overlay, ppmo.overlay_image
 
                 if p.color_corrections is not None and i < len(p.color_corrections):
+                    if p.is_api:
+                        image_without_cc, _ = apply_overlay(image, p.paste_to, overlay_image)
+                        image_without_cc.info["parameters"] = infotext(i)
+                        images_before_color_correction.append(image_without_cc)
+
                     if save_samples and opts.save_images_before_color_correction:
                         image_without_cc, _ = apply_overlay(image, p.paste_to, overlay_image)
                         images.save_image(image_without_cc, p.outpath_samples, "", p.seeds[i], p.prompts[i], opts.samples_format, info=infotext(i), p=p, suffix="-before-color-correction")
@@ -1143,6 +1149,7 @@ def process_images_inner(p: StableDiffusionProcessing) -> Processed:
         index_of_first_image=index_of_first_image,
         infotexts=infotexts,
     )
+    res.images.extend(images_before_color_correction)
 
     if p.scripts is not None:
         p.scripts.postprocess(p, res)
