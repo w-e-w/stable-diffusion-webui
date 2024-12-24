@@ -125,7 +125,7 @@ def ui_reorder_categories():
 
 def callbacks_order_settings():
     options = {
-        "sd_vae_explanation": OptionHTML("""
+        "callbacks_order_explanation": OptionHTML("""
     For categories below, callbacks added to dropdowns happen before others, in order listed.
     """),
 
