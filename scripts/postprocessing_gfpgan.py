@@ -26,6 +26,15 @@ class ScriptPostprocessingGfpGan(scripts_postprocessing.ScriptPostprocessing):
         res = Image.fromarray(restored_img)
 
         if gfpgan_visibility < 1.0:
+            
+            # Ensure consistent size
+            if pp.image.size != res.size:
+                res = res.resize(pp.image.size)
+                
+            # Ensure consistent mode
+            if pp.image.mode != res.mode:
+                res = res.convert(pp.image.mode)
+                
             res = Image.blend(pp.image, res, gfpgan_visibility)
 
         pp.image = res
