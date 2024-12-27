@@ -335,7 +335,7 @@ class UiSettings:
 
             for method in methods:
                 method(
-                    fn=lambda value, k=k: self.run_settings_single(value, key=k),
+                    fn=lambda value, key=k: self.run_settings_single(value, key=key),
                     inputs=[component],
                     outputs=[component, self.text_settings],
                     show_progress=info.refresh is not None,
