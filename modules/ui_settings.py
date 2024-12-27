@@ -86,7 +86,13 @@ class UiSettings:
             opts.save(shared.config_filename)
         except RuntimeError:
             return opts.dumpjson(), f'{len(changed)} settings changed without save: {", ".join(changed)}.'
-        return opts.dumpjson(), f'{len(changed)} settings changed{": " if changed else ""}{", ".join(changed)}.'
+
+        result_output = f'{len(changed)} settings changed:'
+        result_output += "".join(f"<br>{item}" for item in changed)
+        existing_result = self.result.value or ""
+        updated_result = f"{existing_result}<br>{result_output}" if existing_result else result_output
+
+        return opts.dumpjson(), updated_result
 
     def run_settings_single(self, value, key):
         if not opts.same_type(value, opts.data_labels[key].default):
