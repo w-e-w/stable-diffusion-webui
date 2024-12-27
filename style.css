@@ -480,8 +480,20 @@ div.toprow-compact-tools{
 }
 
 #settings_result{
-    height: 1.4em;
-    margin: 0 1.2em;
+    height: auto;
+    width: auto;
+}
+
+#settings_result.block{
+    margin: 0 0.8em;
+    max-height: 10em;
+    overflow-y: auto !important;
+    background-color: var(--input-background-fill);
+}
+
+#settings_result > div.svelte-1ed2p3z{
+    margin: 0;
+    padding: 13px;
 }
 
 table.popup-table{
