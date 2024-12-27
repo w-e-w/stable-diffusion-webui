@@ -41,8 +41,10 @@ onUiLoaded(function() {
     settings_tabs.insertBefore(edit, settings_tabs.firstChild);
     settings_tabs.appendChild(buttonShowAllPages);
 
-
     buttonShowAllPages.addEventListener("click", settingsShowAllTabs);
+
+    var settingsResultOutput = gradioApp().querySelector("#settings_result > div.svelte-1ed2p3z");
+    settingsResultOutput.classList.add("prose");
 });
 
 
