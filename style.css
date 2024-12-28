@@ -480,8 +480,10 @@ div.toprow-compact-tools{
 }
 
 #settings_result{
-    height: 1.4em;
+    min-height: 1.4em;
     margin: 0 1.2em;
+    max-height: calc(var(--text-md) * var(--line-sm) * 5);
+    overflow-y: auto;
 }
 
 table.popup-table{
