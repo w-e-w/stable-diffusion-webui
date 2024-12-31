@@ -228,9 +228,11 @@ onUiLoaded(async() => {
         canvas_blur_prompt: false,
         canvas_hotkey_undo: "KeyZ",
         canvas_hotkey_clear: "KeyC",
+        canvas_hotkey_toggle_eraser: "KeyE",
     };
 
     const functionMap = {
+        "Toggle eraser": "canvas_hotkey_toggle_eraser",
         "Zoom": "canvas_hotkey_zoom",
         "Adjust brush size": "canvas_hotkey_adjust",
         "Hotkey shrink brush": "canvas_hotkey_shrink_brush",
@@ -325,6 +327,7 @@ onUiLoaded(async() => {
                     action: "Adjust brush size",
                     keySuffix: " + wheel"
                 },
+                {configKey: "canvas_hotkey_toggle_eraser", action: "Toggle eraser"},
                 {configKey: "canvas_hotkey_undo", action: "Undo brush stroke"},
                 {configKey: "canvas_hotkey_clear", action: "Clear canvas"},
                 {configKey: "canvas_hotkey_reset", action: "Reset zoom"},
@@ -614,6 +617,25 @@ onUiLoaded(async() => {
 
         createImportExportButtons();
 
+        function toggleEraser() {
+            const canvasInterface = gradioApp().querySelector(`${elemId} canvas[key='interface']`);
+            const targetCanvas = getPaintCanvas();
+            if (!targetCanvas || !canvasInterface) {
+                console.error("Canvas element not found!");
+                return;
+            }
+            const ctx = targetCanvas.getContext('2d');
+            if (ctx.globalCompositeOperation === 'source-over') {
+                ctx.globalCompositeOperation = 'destination-out'; // eraser
+                canvasInterface.classList.add('canvas-eraser-mode');
+            } else if (ctx.globalCompositeOperation === 'destination-out') {
+                ctx.globalCompositeOperation = 'source-over'; // brush
+                canvasInterface.classList.remove('canvas-eraser-mode');
+            } else {
+                console.error(`Unknown composite operation: ${ctx.globalCompositeOperation}`);
+            }
+        }
+
         // Reset zoom when uploading a new image
         const fileInput = gradioApp().querySelector(
             `${elemId} input[type="file"][accept="image/*"].svelte-116rqfv`
@@ -835,7 +857,8 @@ onUiLoaded(async() => {
                 [hotkeysConfig.canvas_hotkey_shrink_brush]: () => adjustBrushSize(elemId, 10),
                 [hotkeysConfig.canvas_hotkey_grow_brush]: () => adjustBrushSize(elemId, -10),
                 [hotkeysConfig.canvas_hotkey_undo]: undoBrushStroke,
-                [hotkeysConfig.canvas_hotkey_clear]: clearCanvas
+                [hotkeysConfig.canvas_hotkey_clear]: clearCanvas,
+                [hotkeysConfig.canvas_hotkey_toggle_eraser]: toggleEraser,
             };
 
             const action = hotkeyActions[event.code];

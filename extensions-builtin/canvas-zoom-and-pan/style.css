@@ -104,3 +104,8 @@
 .image-container:not(:has(> div > div > canvas)) > .canvas-import-export-container {
     display: none;
 }
+
+.canvas-eraser-mode {
+    filter: invert(1) opacity(70%);
+    clip-path: inset(2px 0 2px 0);
+}
