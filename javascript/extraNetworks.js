@@ -247,10 +247,10 @@ function tryToRemoveExtraNetworkFromPrompt(textarea, text, isNeg) {
 
 function updatePromptArea(text, textArea, isNeg) {
     if (!tryToRemoveExtraNetworkFromPrompt(textArea, text, isNeg)) {
-        if (textArea.value.endsWith(opts.extra_networks_add_text_separator)) {
-            textArea.value = textArea.value + text;
+        if (opts.extra_networks_add_text_separator) {
+            textArea.value = textArea.value.replace(new RegExp(`[<${opts.extra_networks_add_text_separator}>]*$`), '') + opts.extra_networks_add_text_separator + text;
         } else {
-            textArea.value = textArea.value + opts.extra_networks_add_text_separator + text;
+            textArea.value = textArea.value + text;
         }
     }
     updateInput(textArea);
