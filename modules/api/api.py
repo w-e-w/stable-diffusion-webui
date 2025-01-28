@@ -202,7 +202,9 @@ class Api:
         if shared.cmd_opts.api_auth:
             self.credentials = {}
             for auth in shared.cmd_opts.api_auth.split(","):
-                user, password = auth.split(":")
+                user, sep, password = auth.partition(':')
+                if not sep:
+                    raise ValueError("Invalid API auth format: <user_1>:<password_2>,<user_2>:<password_2>,...")
                 self.credentials[user] = password
 
         self.router = APIRouter()
