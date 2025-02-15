@@ -83,7 +83,7 @@ def addnet_hash_safetensors(b):
     return hash_sha256.hexdigest()
 
 
-def partial_hash_from_cache(filename, ignore_cache=False):
+def partial_hash_from_cache(filename, *, ignore_cache: bool = False, digits: int = 8):
     """old hash that only looks at a small part of the file and is prone to collisions
     kept for compatibility, don't use this for new things
     """
@@ -95,7 +95,7 @@ def partial_hash_from_cache(filename, ignore_cache=False):
         cache_mtime = cache_entry.get("mtime", 0)
         cache_hash = cache_entry.get("hash", None)
         if mtime == cache_mtime and cache_hash and not ignore_cache:
-            return cache_hash
+            return cache_hash[0:digits]
 
         with open(filename, 'rb') as file:
             m = hashlib.sha256()
@@ -103,7 +103,7 @@ def partial_hash_from_cache(filename, ignore_cache=False):
             m.update(file.read(0x10000))
             partial_hash = m.hexdigest()
             hashes[filename] = {'mtime': mtime, 'hash': partial_hash}
-            return partial_hash[0:8]
+            return partial_hash[0:digits]
 
     except FileNotFoundError:
         pass
