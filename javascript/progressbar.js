@@ -189,6 +189,10 @@ function requestProgress(id_task, progressbarContainer, gallery, atEnd, onProgre
                         livePreview = document.createElement('div');
                         livePreview.className = 'livePreview';
                         gallery.insertBefore(livePreview, gallery.firstElementChild);
+                        if (opts.gallery_height) {
+                            let empty = gallery.querySelector('div.empty');
+                            empty.style.height = opts.gallery_height;
+                        }
                     }
                     updateModalImageIfVisible();
                     livePreview.appendChild(img);
