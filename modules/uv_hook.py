@@ -1,4 +1,5 @@
 import sys
+import copy
 import shlex
 import subprocess
 from functools import wraps
@@ -18,10 +19,11 @@ def patch():
 
     @wraps(subprocess.__original_run)
     def patched_run(*args, **kwargs):
+        _kwargs = copy.copy(kwargs)
         if args:
             command, *_args = args
         else:
-            command, _args = kwargs.pop("args", ""), ()
+            command, _args = _kwargs.pop("args", ""), ()
 
         if isinstance(command, str):
             command = shlex.split(command)
@@ -31,7 +33,7 @@ def patch():
         assert isinstance(command, list)
 
         if "pip" not in command:
-            return subprocess.__original_run([*command, *_args], **kwargs)
+            return subprocess.__original_run([*command, *_args], **_kwargs)
 
         cmd = command[command.index("pip") + 1 :]
 
@@ -40,6 +42,9 @@ def patch():
 
         modified_command = ["uv", "pip", *cmd]
 
-        return subprocess.__original_run([*modified_command, *_args], **kwargs)
+        result = subprocess.__original_run([*modified_command, *_args], **_kwargs)
+        if result.returncode != 0:
+            return subprocess.__original_run(*args, **kwargs)
+        return result
 
     subprocess.run = patched_run
