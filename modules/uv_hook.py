@@ -1,3 +1,4 @@
+import sys
 import shlex
 import subprocess
 from functools import wraps
@@ -8,6 +9,11 @@ def patch():
         return
 
     print("using uv")
+    try:
+        subprocess.run(['uv', '-V'])
+    except FileNotFoundError:
+        subprocess.run([sys.executable, '-m', 'pip', 'install', 'uv'])
+
     subprocess.__original_run = subprocess.run
 
     @wraps(subprocess.__original_run)
