@@ -4,6 +4,8 @@ import shlex
 import subprocess
 from functools import wraps
 
+BAD_FLAGS = ("--prefer-binary", '-I', '--ignore-installed')
+
 
 def patch():
     if hasattr(subprocess, "__original_run"):
@@ -35,9 +37,8 @@ def patch():
         if "pip" not in command:
             return subprocess.__original_run([*command, *_args], **_kwargs)
 
-        cmd = command[command.index("pip") + 1 :]
+        cmd = command[command.index("pip") + 1:]
 
-        BAD_FLAGS = ("--prefer-binary",)
         cmd = [arg for arg in cmd if arg not in BAD_FLAGS]
 
         modified_command = ["uv", "pip", *cmd]
