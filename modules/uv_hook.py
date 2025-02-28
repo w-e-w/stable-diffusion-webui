@@ -32,10 +32,8 @@ def patch():
         else:
             command = [arg.strip() for arg in command]
 
-        assert isinstance(command, list)
-
-        if "pip" not in command:
-            return subprocess.__original_run([*command, *_args], **_kwargs)
+        if not isinstance(command, list) or "pip" not in command:
+            return subprocess.__original_run(*args, **kwargs)
 
         cmd = command[command.index("pip") + 1:]
 
