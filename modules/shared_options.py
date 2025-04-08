@@ -295,6 +295,9 @@ options_templates.update(options_section(('extra_networks', "Extra Networks", "s
     "textual_inversion_add_hashes_to_infotext": OptionInfo(True, "Add Textual Inversion hashes to infotext"),
     "sd_hypernetwork": OptionInfo("None", "Add hypernetwork to prompt", gr.Dropdown, lambda: {"choices": ["None", *shared.hypernetworks]}, refresh=shared_items.reload_hypernetworks),
     "textual_inversion_image_embedding_data_cache": OptionInfo(False, 'Cache the data of image embeddings').info('potentially increase TI load time at the cost some disk space'),
+    "extra_networks_downscale_thumbnail": OptionInfo(True, "Downscale extra networks preview image for improved performance"),
+    "extra_networks_thumbnail_max_width": OptionInfo(256, "Targe width of extra networks preview image downscale", gr.Number, {"precision": 0, "minimum": 0}).info("0 = no limit"),
+    "extra_networks_thumbnail_max_height": OptionInfo(384, "Targe height of extra networks preview image downscale", gr.Number, {"precision": 0, "minimum": 0}).info("0 = no limit"),
 }))
 
 options_templates.update(options_section(('ui_prompt_editing', "Prompt editing", "ui"), {
