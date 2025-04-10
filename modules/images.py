@@ -14,7 +14,7 @@ import piexif
 import piexif.helper
 from PIL import Image, ImageFont, ImageDraw, ImageColor, PngImagePlugin, ImageOps
 # pillow_avif needs to be imported somewhere in code for it to work
-import pillow_avif # noqa: F401
+import pillow_avif  # noqa: F401
 import string
 import json
 import hashlib
@@ -564,19 +564,19 @@ def get_next_sequence_number(path, basename):
     return result + 1
 
 
-def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_pnginfo=None, pnginfo_section_name='parameters'):
+def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_pnginfo=None, pnginfo_section_name='parameters', image_format=None):
     """
     Saves image to filename, including geninfo as text information for generation info.
     For PNG images, geninfo is added to existing pnginfo dictionary using the pnginfo_section_name argument as key.
     For JPG images, there's no dictionary and geninfo just replaces the EXIF description.
     """
 
-    if extension is None:
-        extension = os.path.splitext(filename)[1]
+    if image_format is None:
+        if extension is None:
+            extension = os.path.splitext(filename)[1].lower()
+        image_format = Image.registered_extensions()[extension]
 
-    image_format = Image.registered_extensions()[extension]
-
-    if extension.lower() == '.png':
+    if image_format == 'PNG':
         existing_pnginfo = existing_pnginfo or {}
         if opts.enable_pnginfo:
             existing_pnginfo[pnginfo_section_name] = geninfo
@@ -590,11 +590,11 @@ def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_p
 
         image.save(filename, format=image_format, quality=opts.jpeg_quality, pnginfo=pnginfo_data)
 
-    elif extension.lower() in (".jpg", ".jpeg", ".webp"):
+    elif image_format in ("JPEG", "WEBP"):
         if image.mode == 'RGBA':
             image = image.convert("RGB")
         elif image.mode == 'I;16':
-            image = image.point(lambda p: p * 0.0038910505836576).convert("RGB" if extension.lower() == ".webp" else "L")
+            image = image.point(lambda p: p * 0.0038910505836576).convert("RGB" if image_format == "WEBP" else "L")
 
         image.save(filename, format=image_format, quality=opts.jpeg_quality, lossless=opts.webp_lossless)
 
@@ -606,7 +606,7 @@ def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_p
             })
 
             piexif.insert(exif_bytes, filename)
-    elif extension.lower() == '.avif':
+    elif image_format == 'AVIF':
         if opts.enable_pnginfo and geninfo is not None:
             exif_bytes = piexif.dump({
                 "Exif": {
@@ -617,7 +617,7 @@ def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_p
             exif_bytes = None
 
         image.save(filename,format=image_format, quality=opts.jpeg_quality, exif=exif_bytes)
-    elif extension.lower() == ".gif":
+    elif image_format == "GIF":
         image.save(filename, format=image_format, comment=geninfo)
     else:
         image.save(filename, format=image_format, quality=opts.jpeg_quality)

@@ -13,7 +13,7 @@ import gradio as gr
 import json
 import html
 from fastapi.exceptions import HTTPException
-from PIL import Image
+from PIL import Image, ImageSequence
 from hashlib import sha256
 
 from modules.infotext_utils import image_from_url_text
@@ -96,20 +96,19 @@ def register_page(page):
 
 
 def downscale_image(path_str: str):
+    path = Path(path_str).absolute()
+    stat = path.stat()
+    mtime = stat.st_mtime
+    size = stat.st_size
+    path_hash = sha256(str(path).encode("utf-8")).hexdigest()
+    cache_dir = Path(paths_internal.tmp) / 'thumbnail'
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_id = f'{path_hash}-{size}-{int(mtime)}'
+    cache_path_original = cache_dir / f'{cache_id}{path.suffix}-use_original'
+    if cache_path_original.exists():
+        return str(path_str)
+    cache_path = cache_dir / f'{cache_id}{path.suffix}'
     try:
-        path = Path(path_str).absolute()
-        stat = path.stat()
-        mtime = stat.st_mtime
-        size = stat.st_size
-        path_hash = sha256(str(path).encode("utf-8")).hexdigest()
-        cache_dir = Path(paths_internal.tmp) / 'thumbnail'
-        cache_dir.mkdir(parents=True, exist_ok=True)
-
-        cache_id = f'{path_hash}-{size}-{int(mtime)}'
-        cache_path_original = cache_dir / f'{cache_id}{path.suffix}-use_original'
-        if cache_path_original.exists():
-            return str(path_str)
-        cache_path = cache_dir / f'{cache_id}{path.suffix}'
         if not cache_path.exists():
             img = Image.open(path)
             geninfo, items = read_info_from_image(img)
@@ -120,14 +119,18 @@ def downscale_image(path_str: str):
                 short_edge_actual = min(width, height)
                 scale = short_edge_target / short_edge_actual
                 new_size = (int(width * scale), int(height * scale))
-                img_resize = img.resize(new_size)
-                img_resize.info = img.info
-                save_image_with_geninfo(img_resize, geninfo, str(cache_path))
+                if getattr(img, 'n_frames', 1) > 1:
+                    frames = ImageSequence.all_frames(img, lambda f: f.resize(new_size))
+                    frames[0].save(cache_path, save_all=True, append_images=frames[1:], format=img.format)
+                else:
+                    img_resize = img.resize(new_size)
+                    img_resize.save(str(cache_path), format=img.format)
+                    save_image_with_geninfo(img_resize, geninfo, str(cache_path), image_format=img.format)
             else:
-                cache_path_original.touch()
                 return str(path_str)
         return str(cache_path)
-    except Exception as e:
+    except Exception as _:
+        cache_path_original.touch()
         from modules.errors import report
         report(f"Failed to downscale image: {path_str}", exc_info=True)
         return str(path_str)
