@@ -95,7 +95,7 @@ def register_page(page):
     allowed_dirs.update(set(sum([x.allowed_directories_for_previews() for x in extra_pages], [])))
 
 
-def downscale_image(path_str: str):
+def downscale_image(path_str: str, target_width, target_height):
     path = Path(path_str).absolute()
     stat = path.stat()
     mtime = stat.st_mtime
@@ -112,10 +112,9 @@ def downscale_image(path_str: str):
         if not cache_path.exists():
             img = Image.open(path)
             geninfo, items = read_info_from_image(img)
-            max_w, max_h = shared.opts.extra_networks_thumbnail_max_width, shared.opts.extra_networks_thumbnail_max_height
             width, height = img.size
-            if (width > max_w > 0) or (height > max_h > 0):
-                short_edge_target = min(max_w, max_h)
+            if (width > target_width > 0) or (height > target_height > 0):
+                short_edge_target = min(target_width, target_height)
                 short_edge_actual = min(width, height)
                 scale = short_edge_target / short_edge_actual
                 new_size = (int(width * scale), int(height * scale))
