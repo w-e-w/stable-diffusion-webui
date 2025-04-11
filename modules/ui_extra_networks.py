@@ -148,7 +148,8 @@ def fetch_file(filename: str = ""):
     if ext not in allowed_preview_extensions():
         raise ValueError(f"File cannot be fetched: {filename}. Extensions allowed: {allowed_preview_extensions()}.")
 
-    filename = downscale_image(filename)
+    if shared.opts.extra_networks_downscale_thumbnail:
+        filename = downscale_image(filename, target_width=shared.opts.extra_networks_thumbnail_max_width, target_height=shared.opts.extra_networks_thumbnail_max_height)
 
     # would profit from returning 304
     return FileResponse(filename, headers={"Accept-Ranges": "bytes"})
