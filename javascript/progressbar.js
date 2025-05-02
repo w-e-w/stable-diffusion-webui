@@ -190,7 +190,7 @@ function requestProgress(id_task, progressbarContainer, gallery, atEnd, onProgre
                         livePreview.className = 'livePreview';
                         gallery.insertBefore(livePreview, gallery.firstElementChild);
                     }
-
+                    updateModalImageIfVisible();
                     livePreview.appendChild(img);
                     if (livePreview.childElementCount > 2) {
                         livePreview.removeChild(livePreview.firstElementChild);

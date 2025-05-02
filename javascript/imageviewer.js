@@ -54,6 +54,7 @@ function updateOnBackgroundChange() {
         updateModalImage();
     }
 }
+const updateModalImageIfVisible = updateOnBackgroundChange;
 
 function modalImageSwitch(offset) {
     var galleryButtons = all_gallery_buttons();
@@ -164,6 +165,7 @@ function modalLivePreviewToggle(event) {
     const modalToggleLivePreview = gradioApp().getElementById("modal_toggle_live_preview");
     opts.js_live_preview_in_modal_lightbox = !opts.js_live_preview_in_modal_lightbox;
     modalToggleLivePreview.innerHTML = opts.js_live_preview_in_modal_lightbox ? "&#x1F5C7;" : "&#x1F5C6;";
+    updateModalImageIfVisible();
     event.stopPropagation();
 }
 
