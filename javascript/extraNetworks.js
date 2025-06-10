@@ -217,7 +217,7 @@ function tryToRemoveExtraNetworkFromPrompt(textarea, text, isNeg) {
         var foundAtPosition = -1;
         newTextareaText = textarea.value.replaceAll(isNeg ? re_extranet_g_neg : re_extranet_g, function(found, net, pos) {
             m = found.match(isNeg ? re_extranet_neg : re_extranet);
-            if (m[1] == partToSearch) {
+            if (m[1] === partToSearch) {
                 replaced = true;
                 foundAtPosition = pos;
                 return "";
@@ -225,16 +225,20 @@ function tryToRemoveExtraNetworkFromPrompt(textarea, text, isNeg) {
             return found;
         });
         if (foundAtPosition >= 0) {
-            if (extraTextAfterNet && newTextareaText.substr(foundAtPosition, extraTextAfterNet.length) == extraTextAfterNet) {
-                newTextareaText = newTextareaText.substr(0, foundAtPosition) + newTextareaText.substr(foundAtPosition + extraTextAfterNet.length);
+            if (extraTextAfterNet && newTextareaText.slice(foundAtPosition, foundAtPosition + extraTextAfterNet.length) === extraTextAfterNet) {
+                newTextareaText = newTextareaText.slice(0, foundAtPosition) + newTextareaText.slice(foundAtPosition + extraTextAfterNet.length);
             }
-            if (newTextareaText.substr(foundAtPosition - extraTextBeforeNet.length, extraTextBeforeNet.length) == extraTextBeforeNet) {
-                newTextareaText = newTextareaText.substr(0, foundAtPosition - extraTextBeforeNet.length) + newTextareaText.substr(foundAtPosition);
+            let afterText = newTextareaText.slice(foundAtPosition).trim();
+            if (
+                newTextareaText.slice(foundAtPosition - extraTextBeforeNet.length, foundAtPosition) === extraTextBeforeNet &&
+                (afterText.length === 0 || afterText.startsWith(extraTextBeforeNet.trim()))
+            ) {
+                newTextareaText = newTextareaText.slice(0, foundAtPosition - extraTextBeforeNet.length) + newTextareaText.slice(foundAtPosition);
             }
         }
     } else {
         newTextareaText = textarea.value.replaceAll(new RegExp(`((?:${extraTextBeforeNet})?${text})`, "g"), "");
-        replaced = (newTextareaText != textarea.value);
+        replaced = (newTextareaText !== textarea.value);
     }
 
     if (replaced) {
