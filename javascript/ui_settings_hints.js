@@ -7,7 +7,7 @@ onOptionsChanged(function() {
     settingsHintsSetup = true;
 
     gradioApp().querySelectorAll('#settings [id^=setting_]').forEach(function(div) {
-        var name = div.id.substr(8);
+        var name = div.id.slice(8);
         var commentBefore = opts._comments_before[name];
         var commentAfter = opts._comments_after[name];
 
