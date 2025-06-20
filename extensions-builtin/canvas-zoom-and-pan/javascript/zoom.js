@@ -284,6 +284,7 @@ onUiLoaded(async() => {
 
     function applyZoomAndPan(elemId, isExtension = true) {
         const targetElement = gradioApp().querySelector(elemId);
+        const targetParent = targetElement?.parentElement;
 
         if (!targetElement) {
             console.log("Element not found", elemId);
@@ -443,6 +444,13 @@ onUiLoaded(async() => {
 
             targetElement.style.width = "";
         }
+
+        function resetZoomNoChild(event) {
+            if (event.target === event.currentTarget) {
+                resetZoom();
+            }
+        }
+        targetParent.addEventListener("click", resetZoomNoChild);
 
         // Toggle the zIndex of the target element between two values, allowing it to overlap or be overlapped by other elements
         function toggleOverlap(forced = "") {
