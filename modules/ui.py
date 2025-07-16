@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import sys
+import json
 from functools import reduce
 import warnings
 from contextlib import ExitStack
@@ -156,6 +157,7 @@ def connect_clear_prompt(button):
 
 
 def update_token_counter(text, steps, styles, *, is_positive=True):
+    input_params_json = json.dumps({'prompt': text, 'steps': steps, 'styles': styles})
     params = script_callbacks.BeforeTokenCounterParams(text, steps, styles, is_positive=is_positive)
     script_callbacks.before_token_counter_callback(params)
     text = params.prompt
@@ -185,7 +187,7 @@ def update_token_counter(text, steps, styles, *, is_positive=True):
     flat_prompts = reduce(lambda list1, list2: list1+list2, prompt_schedules)
     prompts = [prompt_text for step, prompt_text in flat_prompts]
     token_count, max_length = max([model_hijack.get_prompt_lengths(prompt) for prompt in prompts], key=lambda args: args[0])
-    return f"<span class='gr-box gr-text-input'>{token_count}/{max_length}</span>"
+    return f"<span class='gr-box gr-text-input'>{token_count}/{max_length}</span>", input_params_json
 
 
 def update_negative_prompt_token_counter(*args):
@@ -488,10 +490,42 @@ def create_ui():
                 height,
             ]
 
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-            toprow.token_button.click(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
+            toprow.ui_styles.dropdown.change(
+                fn=wrap_queued_call(update_token_counter),
+                inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown],
+                outputs=[toprow.token_counter, toprow.token_counter_params],
+            ).success(
+                fn=None,
+                _js='confirm_token_counter_synchronize',
+                inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown, toprow.token_counter_params, toprow.token_button],
+            )
+            toprow.ui_styles.dropdown.change(
+                fn=wrap_queued_call(update_negative_prompt_token_counter),
+                inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown],
+                outputs=[toprow.negative_token_counter, toprow.negative_token_counter_params],
+            ).success(
+                fn=None,
+                _js='confirm_token_counter_synchronize',
+                inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown, toprow.negative_token_counter_params, toprow.negative_token_button],
+            )
+            toprow.token_button.click(
+                fn=wrap_queued_call(update_token_counter),
+                inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown],
+                outputs=[toprow.token_counter, toprow.token_counter_params],
+            ).success(
+                fn=None,
+                _js='confirm_token_counter_synchronize',
+                inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown, toprow.token_counter_params, toprow.token_button],
+            )
+            toprow.negative_token_button.click(
+                fn=wrap_queued_call(update_negative_prompt_token_counter),
+                inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown],
+                outputs=[toprow.negative_token_counter, toprow.negative_token_counter_params],
+            ).success(
+                fn=None,
+                _js='confirm_token_counter_synchronize',
+                inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown, toprow.negative_token_counter_params, toprow.negative_token_button],
+            )
 
         extra_networks_ui = ui_extra_networks.create_ui(txt2img_interface, [txt2img_generation_tab], 'txt2img')
         ui_extra_networks.setup_ui(extra_networks_ui, output_panel.gallery)

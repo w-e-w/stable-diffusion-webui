@@ -28,8 +28,10 @@ class Toprow:
 
     token_counter = None
     token_button = None
+    token_counter_params = None
     negative_token_counter = None
     negative_token_button = None
+    negative_token_counter_params = None
 
     ui_styles = None
 
@@ -128,9 +130,13 @@ class Toprow:
             self.restore_progress_button = ToolButton(value=restore_progress_symbol, elem_id=f"{self.id_part}_restore_progress", visible=False, tooltip="Restore progress")
 
             self.token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{self.id_part}_token_counter", elem_classes=["token-counter"], visible=False)
-            self.token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_token_button")
+            button_elem_id = f"{self.id_part}_token_button"
+            self.token_button = gr.Button(value=button_elem_id,visible=False, elem_id=button_elem_id)
+            self.token_counter_params = gr.Textbox(value='{}', elem_id=f"{self.id_part}_token_counter_params", visible=False, interactive=False)
             self.negative_token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{self.id_part}_negative_token_counter", elem_classes=["token-counter"], visible=False)
-            self.negative_token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_negative_token_button")
+            negative_button_elem_id = f"{self.id_part}_negative_token_button"
+            self.negative_token_button = gr.Button(value=negative_button_elem_id, visible=False, elem_id=negative_button_elem_id)
+            self.negative_token_counter_params = gr.Textbox(value='{}', elem_id=f"{self.id_part}_negative_token_counter_params", visible=False, interactive=False)
 
             self.clear_prompt_button.click(
                 fn=lambda *x: x,

@@ -78,6 +78,30 @@ function runCodeForTokenCounters(fun) {
     fun('img2img_neg_prompt', 'img2img_negative_token_counter', 'img2img_negative_token_button');
 }
 
+function confirm_token_counter_synchronize(prompt, steps, ui_styles, token_counter_params_json, button_id) {
+    // Called from Gradio
+    let params;
+    try {
+        params = JSON.parse(token_counter_params_json);
+    } catch (e) {
+        console.warn("Invalid JSON:", e);
+        return;
+    }
+
+    if (
+        prompt !== params.prompt ||
+        steps !== params.steps ||
+        JSON.stringify(ui_styles) !== JSON.stringify(params.styles)
+    ) {
+        const button = document.getElementById(button_id);
+        if (button instanceof HTMLElement) {
+            button.click();
+        } else {
+            console.warn("Button not found or not an HTMLElement:", button_id);
+        }
+    }
+}
+
 onUiLoaded(function() {
     runCodeForTokenCounters(setupTokenCounting);
 });
