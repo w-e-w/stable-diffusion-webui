@@ -156,7 +156,7 @@ def connect_clear_prompt(button):
     )
 
 
-def update_token_counter(text, steps, styles, *, is_positive=True):
+def update_token_counter(text, steps, styles, *, is_positive=True, return_input=False):
     input_params_json = json.dumps({'prompt': text, 'steps': steps, 'styles': styles})
     params = script_callbacks.BeforeTokenCounterParams(text, steps, styles, is_positive=is_positive)
     script_callbacks.before_token_counter_callback(params)
@@ -187,11 +187,23 @@ def update_token_counter(text, steps, styles, *, is_positive=True):
     flat_prompts = reduce(lambda list1, list2: list1+list2, prompt_schedules)
     prompts = [prompt_text for step, prompt_text in flat_prompts]
     token_count, max_length = max([model_hijack.get_prompt_lengths(prompt) for prompt in prompts], key=lambda args: args[0])
-    return f"<span class='gr-box gr-text-input'>{token_count}/{max_length}</span>", input_params_json
+
+    token_counter_html = f"<span class='gr-box gr-text-input'>{token_count}/{max_length}</span>"
+    if return_input:
+        return token_counter_html, input_params_json
+    return token_counter_html
 
 
 def update_negative_prompt_token_counter(*args):
     return update_token_counter(*args, is_positive=False)
+
+
+def update_token_counter_sync(*args):
+    return update_token_counter(*args, is_positive=True, return_input=True)
+
+
+def update_negative_prompt_token_counter_sync(*args):
+    return update_token_counter(*args, is_positive=False, return_input=True)
 
 
 def setup_progressbar(*args, **kwargs):
@@ -256,7 +268,7 @@ def create_override_settings_dropdown(tabname, row):
 
 def setup_update_token_counter_events(toprow, steps):
     toprow.ui_styles.dropdown.change(
-        fn=wrap_queued_call(update_token_counter),
+        fn=wrap_queued_call(update_token_counter_sync),
         inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown],
         outputs=[toprow.token_counter, toprow.token_counter_params],
     ).success(
@@ -265,7 +277,7 @@ def setup_update_token_counter_events(toprow, steps):
         inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown, toprow.token_counter_params, toprow.token_button],
     )
     toprow.ui_styles.dropdown.change(
-        fn=wrap_queued_call(update_negative_prompt_token_counter),
+        fn=wrap_queued_call(update_negative_prompt_token_counter_sync),
         inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown],
         outputs=[toprow.negative_token_counter, toprow.negative_token_counter_params],
     ).success(
@@ -274,7 +286,7 @@ def setup_update_token_counter_events(toprow, steps):
         inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown, toprow.negative_token_counter_params, toprow.negative_token_button],
     )
     toprow.token_button.click(
-        fn=wrap_queued_call(update_token_counter),
+        fn=wrap_queued_call(update_token_counter_sync),
         inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown],
         outputs=[toprow.token_counter, toprow.token_counter_params],
     ).success(
@@ -283,7 +295,7 @@ def setup_update_token_counter_events(toprow, steps):
         inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown, toprow.token_counter_params, toprow.token_button],
     )
     toprow.negative_token_button.click(
-        fn=wrap_queued_call(update_negative_prompt_token_counter),
+        fn=wrap_queued_call(update_negative_prompt_token_counter_sync),
         inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown],
         outputs=[toprow.negative_token_counter, toprow.negative_token_counter_params],
     ).success(
