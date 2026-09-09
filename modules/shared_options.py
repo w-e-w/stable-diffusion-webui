@@ -348,7 +348,10 @@ options_templates.update(options_section(('ui', "User interface", "ui"), {
     "send_seed": OptionInfo(True, "Send seed when sending prompt or image to other interface"),
     "send_size": OptionInfo(True, "Send size when sending prompt or image to another interface"),
     "enable_reloading_ui_scripts": OptionInfo(False, "Reload UI scripts when using Reload UI option").info("useful for developing: if you make changes to UI scripts code, it is applied when the UI is reloded."),
-
+    "enable_hotkey_img_gen_ctrl_enter_generate": OptionInfo(True, 'Enable hotkey "Ctrl+Enter" to "start" image generation'),
+    "enable_hotkey_img_gen_ctrl_enter_interrupt": OptionInfo(True, 'Enable hotkey "Ctrl+Enter" to "interrupt" image generation'),
+    "enable_hotkey_img_gen_esc_interrupt": OptionInfo(True, 'Enable hotkey "Esc" Hotkey to "interrupt" image generation'),
+    "enable_hotkey_img_gen_alt_enter_skip": OptionInfo(True, 'Enable hotkey "Alt+Enter" to "skip" image generation'),
 }))
 
 

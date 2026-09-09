@@ -151,28 +151,33 @@ document.addEventListener('keydown', function(e) {
     const interruptButton = get_uiCurrentTabContent().querySelector('button[id$=_interrupt]');
     const skipButton = get_uiCurrentTabContent().querySelector('button[id$=_skip]');
 
-    if (isCtrlKey && isEnter) {
+    if (isCtrlKey && isEnter && (opts.enable_hotkey_img_gen_ctrl_enter_generate || opts.enable_hotkey_img_gen_ctrl_enter_interrupt)) {
         if (interruptButton.style.display === 'block') {
-            interruptButton.click();
-            const callback = (mutationList) => {
-                for (const mutation of mutationList) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                        if (interruptButton.style.display === 'none') {
-                            generateButton.click();
-                            observer.disconnect();
+            if (opts.enable_hotkey_img_gen_ctrl_enter_interrupt) {
+                e.preventDefault();
+                interruptButton.click();
+                if (opts.enable_hotkey_img_gen_ctrl_enter_generate) {
+                    const callback = (mutationList) => {
+                        for (const mutation of mutationList) {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                if (interruptButton?.style.display === 'none') {
+                                    generateButton.click();
+                                    observer.disconnect();
+                                }
+                            }
                         }
-                    }
+                    };
+                    const observer = new MutationObserver(callback);
+                    observer.observe(interruptButton, {attributes: true});
                 }
-            };
-            const observer = new MutationObserver(callback);
-            observer.observe(interruptButton, {attributes: true});
-        } else {
+            }
+        } else if (opts.enable_hotkey_img_gen_ctrl_enter_generate) {
+            e.preventDefault();
             generateButton.click();
         }
-        e.preventDefault();
     }
 
-    if (isAltKey && isEnter) {
+    if (isAltKey && isEnter && opts.enable_hotkey_img_gen_alt_enter_skip) {
         skipButton.click();
         e.preventDefault();
     }
@@ -182,7 +187,7 @@ document.addEventListener('keydown', function(e) {
         const lightboxModal = document.querySelector('#lightboxModal');
         if (!globalPopup || globalPopup.style.display === 'none') {
             if (document.activeElement === lightboxModal) return;
-            if (interruptButton?.style.display === 'block') {
+            if (opts.enable_hotkey_img_gen_esc_interrupt && interruptButton?.style.display === 'block') {
                 interruptButton.click();
                 e.preventDefault();
             }
